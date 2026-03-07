@@ -47,7 +47,7 @@ module.exports.index = async (req, res) => {
 module.exports.detail = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
+    // console.log(id);
     const tasks = await Task.findOne({
       _id: id,
       deleted: false,
@@ -124,6 +124,29 @@ module.exports.create = async (req, res) => {
       code: 200,
       message: "Cập nhật trạng thái thành công",
       data: data,
+    });
+  } catch {
+    res.json({
+      code: 400,
+      message: "Không tồn tại",
+    });
+  }
+};
+
+//[PATCH] /api/v1/tasks/edit
+module.exports.edit = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await Task.updateOne(
+      {
+        _id: id,
+      },
+      req.body,
+    );
+    res.json({
+      code: 200,
+      message: "Chỉnh sửa thành công",
     });
   } catch {
     res.json({
