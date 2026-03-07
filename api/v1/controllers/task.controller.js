@@ -3,12 +3,20 @@ const Task = require("../models/task.model");
 //GET /api/v1/tasks
 module.exports.index = async (req, res) => {
   const find = {
-    deleted: false
+    deleted: false,
+  };
+  if (req.query.status) {
+    find.status = req.query.status;
   }
-  if(req.query.status){
-    find.status = req.query.status
+  //SORT
+  const sort ={
+
   }
-  const tasks = await Task.find(find);
+  if(req.query.sortKey && req.query.sortValue){
+    sort[req.query.sortKey] = req.query.sortValue;
+  }
+  //END SORT
+  const tasks = await Task.find(find).sort(sort);
   res.json(tasks);
 };
 
