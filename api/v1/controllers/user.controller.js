@@ -164,13 +164,26 @@ module.exports.resetPassword = async (req, res) => {
 
 //[GET] /api/v1/users/detail
 module.exports.detail = async (req,res) => {
-  const token = req.cookies.token;
-  const user = await User.findOne({
-    token: token,
-    deleted: false
-  }).select("-password -token")
+  // const token = req.cookies.token;
+  // const user = await User.findOne({
+  //   token: token,
+  //   deleted: false
+  // }).select("-password -token")
   res.json({
     code: 200,
     info: req.user
   })
+}
+//[GET] /api/v1/users/list
+module.exports.list = async (req,res) =>{
+  const users = await User.find({
+    deleted: false
+  }).select("fullName email")
+
+  res.json({
+    code : 200,
+    message: "Thành công",
+    users: users
+  })
+
 }
