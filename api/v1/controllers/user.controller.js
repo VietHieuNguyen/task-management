@@ -23,6 +23,7 @@ module.exports.register = async (req, res) => {
       fullName: req.body.fullName,
       email: req.body.email,
       password: password,
+      token: generateHelper.generateRandomString(30)
     });
     user.save();
     const token = user.token;
@@ -170,6 +171,6 @@ module.exports.detail = async (req,res) => {
   }).select("-password -token")
   res.json({
     code: 200,
-    info: user
+    info: req.user
   })
 }
