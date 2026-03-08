@@ -7,5 +7,8 @@ router.post("/register", controller.register);
 router.post("/login",authValidates.loginPost, controller.login);
 
 
+router.post("/password/forgot", controller.forgotPassword);
+
+
 
 module.exports = router
