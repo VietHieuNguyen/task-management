@@ -1,9 +1,9 @@
 const User = require("../models/user.model");
-const ForgotPassword = require("../models/forgot-password.model")
+const ForgotPassword = require("../models/forgot-password.model");
 const md5 = require("md5");
 
 const generateHelper = require("../../../helpers/generate");
-const sendMailHelper = require("../../../helpers/sendmail")
+const sendMailHelper = require("../../../helpers/sendmail");
 //[POST] /api/v1/users/register
 module.exports.register = async (req, res) => {
   req.body.password = md5(req.body.password);
@@ -85,22 +85,21 @@ module.exports.forgotPassword = async (req, res) => {
   //Lưu data và database
   const objectForgotPassword = {
     email: email,
-    otp : otp,
-    expireAt : Date.now() 
-  }
-  
-  const forgotPassword = new ForgotPassword(objectForgotPassword)
-  await forgotPassword.save()
+    otp: otp,
+    expireAt: Date.now(),
+  };
 
+  const forgotPassword = new ForgotPassword(objectForgotPassword);
+  await forgotPassword.save();
 
   //Gửi otp qua email của user
   const subject = "Mã OTP xác minh lấy lại mật khẩu";
   const html = `Mã OTP để lấy lại mật khẩu là <b> ${otp} </b>. Thời hạn sử dụng là 3 phút`;
-  sendMailHelper.sendMail(email,subject,html)
+  sendMailHelper.sendMail(email, subject, html);
   //end Gửi otp qua email của user
   res.json({
     code: 200,
-    message: "Đã gửi mã OTP qua email"
+    message: "Đã gửi mã OTP qua email",
   });
 };
 
@@ -110,25 +109,54 @@ module.exports.otpPassword = async (req, res) => {
   const otp = req.body.otp;
   const result = await ForgotPassword.findOne({
     email: email,
-    otp: otp
-  })
-  if(!result){
+    otp: otp,
+  });
+  if (!result) {
     res.json({
       code: 400,
-      message: "OTP không hợp lệ!"
+      message: "OTP không hợp lệ!",
     });
     return;
   }
   const user = await User.findOne({
-    email: email
+    email: email,
   });
-  
+
   const token = user.token;
 
-  res.cookie("token",token)
+  res.cookie("token", token);
   res.json({
     code: 200,
     message: "Xác thực thành công",
-    token: token
-  })
-}
+    token: token,
+  });
+};
+//[POST] /api/v1/users/password/reset
+module.exports.resetPassword = async (req, res) => {
+  const token = req.body.token;
+  const password = req.body.password;
+  // console.log(req.cookies.token)
+  // console.log(req.body)
+  const user = await User.findOne({
+    token: token,
+  });
+  if (md5(password) === user.password) {
+    res.json({
+      code: 400,
+      message: "Vui lòng nhập mật khẩu khác mật khẩu cũ",
+    });
+    return;
+  }
+  await User.updateOne(
+    {
+      token: token,
+    },
+    {
+      password: md5(password),
+    },
+  );
+  res.json({
+    code: 200,
+    message: "Đổi mật khẩu thành công"
+  });
+};
